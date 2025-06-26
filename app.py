@@ -8,7 +8,7 @@ from collections import defaultdict
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'devkey')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('postgresql://pos_rest_user:O2vg0XJnkjth57NjeX68DalN5LGNYMTk@dpg-d1ei403e5dus73bf8bt0-a/pos_rest')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
