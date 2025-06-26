@@ -8,7 +8,7 @@ from collections import defaultdict
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'devkey')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('postgresql://pos_rest_user:O2vg0XJnkjth57NjeX68DalN5LGNYMTk@dpg-d1ei403e5dus73bf8bt0-a/pos_rest')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -49,8 +49,9 @@ class Sale(db.Model):
 
 def create_default_admin():
     if not User.query.filter_by(role='admin').first():
-        admin = User(username='Qazmlp', role='admin')
-        admin.set_password('Qazmlp@123')  # default password
+        admin = os.environ.get('DEFAULT_ADMIN_USERNAME', 'admin')
+        admin_pass = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'admin123')
+        admin.set_password(admin_pass)  # default password
         db.session.add(admin)
         db.session.commit()
 
@@ -617,8 +618,14 @@ def admin_sales_summary():
 
 # --------------------- Main -----------------------
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
+#     with app.app_context():
+#         db.create_all()
+#         create_default_admin()
+#     app.run(debug=True)
+def setup():
     with app.app_context():
         db.create_all()
         create_default_admin()
-    app.run(debug=True)
+
+setup()
