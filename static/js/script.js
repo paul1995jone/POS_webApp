@@ -174,6 +174,10 @@
             section = section || (isAdmin ? 'manage_users' : 'billing');
             showSection(section);
 
+            // Too show error msg in duplicate add items.
+            if (params.get('error') === 'exists') {
+                        alert("Item already exists! you can update it.");
+                    }
             if (window.chartData) {
                 renderLineChart(window.chartData);
             }

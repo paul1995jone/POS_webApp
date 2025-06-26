@@ -49,9 +49,9 @@ class Sale(db.Model):
 # --------------------- Create default admin account -----------------------
 
 def create_default_admin():
-    if not User.query.filter_by(username='admin').first():
-        admin = User(username='admin', role='admin')
-        admin.set_password('admin123')  # default password
+    if not User.query.filter_by(role='admin').first():
+        admin = User(username='Qazmlp', role='admin')
+        admin.set_password('Qazmlp@123')  # default password
         db.session.add(admin)
         db.session.commit()
 
@@ -137,6 +137,11 @@ def add_item():
     veg = request.form.get('veg') == 'on'
     available = request.form.get('available') == 'on'
 
+    # Check if active item with same name exists
+    existing_active = Item.query.filter_by(name=name, active=True).first()
+    if existing_active:
+        return redirect(url_for('admin_dashboard', section='manage-item', error='exists'))
+
     # Case 1: Item with same name and active
     existing_active = Item.query.filter_by(name=name, active=True).first()
     if existing_active:
@@ -160,7 +165,6 @@ def add_item():
     db.session.add(new_item)
     db.session.commit()
     return redirect(url_for('admin_dashboard', section='manage-item'))
-
 
 @app.route('/update_item/<int:id>', methods=['POST'])
 def update_item(id):

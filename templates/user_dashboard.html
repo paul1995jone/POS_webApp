@@ -4,12 +4,12 @@
     <title>User Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!--    Linking CSS functionality -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.min.css') }}">
 
 <!--    Defining js variable and linking javascript functionality-->
     <script>const cartItems = {{ cart|tojson | safe }};</script>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -21,7 +21,7 @@
                 <button data-target="billing" onclick="showSection('billing', this)" id="btn-billing">Billing</button>
                 <button data-target="stock" onclick="showSection('stock', this)" id="btn-stock">Manage Stock</button>
                 <button data-target="statistics" onclick="window.location.href='{{ url_for('view_statistics') }}?section=statistics'" id="btn-statistics">View Statistics</button>
-                <button data-target="export" onclick="window.location.href='{{ url_for('export_sales_page') }}?section=export'" id="btn-export">Export Sales</button>
+<!--                <button data-target="export" onclick="window.location.href='{{ url_for('export_sales_page') }}?section=export'" id="btn-export">Export Sales</button>-->
             </nav>
         <div class="logout">
         <a href="{{ url_for('logout') }}">Logout</a>
@@ -222,16 +222,16 @@
                 </div>
             </div>
             <!-- Export Sales Section -->
-            <div id="export" class="export-section" style="display: none; flex-direction: column;">
-                <h3 style="text-align: center;">Export Sales Data</h3>
-                <form method="get" action="{{ url_for('export_sales') }}">
-                    <label for="start-date">Start Date:</label>
-                    <input type="date" name="start_date" id="start-date" required>
-                    <label for="end-date" style="margin-left: 10px;">End Date:</label>
-                    <input type="date" name="end_date" id="end-date" required>
-                    <button type="submit" style="margin-left: 10px;">Download CSV</button>
-                </form>
-            </div>
+<!--            <div id="export" class="export-section" style="display: none; flex-direction: column;">-->
+<!--                <h3 style="text-align: center;">Export Sales Data</h3>-->
+<!--                <form method="get" action="{{ url_for('export_sales') }}">-->
+<!--                    <label for="start-date">Start Date:</label>-->
+<!--                    <input type="date" name="start_date" id="start-date" required>-->
+<!--                    <label for="end-date" style="margin-left: 10px;">End Date:</label>-->
+<!--                    <input type="date" name="end_date" id="end-date" required>-->
+<!--                    <button type="submit" style="margin-left: 10px;">Download CSV</button>-->
+<!--                </form>-->
+<!--            </div>-->
         </div>
     </div>
 {% if chart_data %}

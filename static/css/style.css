@@ -1,16 +1,37 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
+            font-size: 16px;
             display: flex;
             flex-direction: column;
             height: 100vh;
         }
+        /*Add relative font sizing to avoid oversized text on small screens*/
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+        }
+
+        /* Add smooth scrolling for better UX */
+        html {
+            scroll-behavior: smooth;
+        }
         header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
             background-color: #343a40;
             color: white;
             padding: 15px;
             text-align: center;
             font-size: 24px;
+        }
+        /*more vertical spacing for mobile readability*/
+        @media (max-width: 768px) {
+            .main-content {
+                gap: 30px;
+            }
         }
         .dashboard {
             display: flex;
@@ -158,9 +179,8 @@
                 flex-direction: column;
             }
             .sidebar {
-                width: 100%;
-                flex-direction: row;
-                justify-content: space-around;
+                overflow-x: auto;
+                white-space: nowrap;
             }
             .sidebar nav {
                 flex-direction: row;

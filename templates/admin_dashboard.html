@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.min.css') }}">
     <script>
         const initialSection = "{{ section | default('manage-user') }}";
     </script>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <header>Admin Dashboard</header>
@@ -19,7 +19,7 @@
             <button data-target="manage-user" onclick="showSection('manage-user')">Manage Users</button>
             <button data-target="manage-item" onclick="showSection('manage-item')">Manage Items</button>
             <button data-target="view-sales" onclick="window.location.href='{{ url_for('admin_sales_summary') }}?section=view-sales'" id="btn-view-sales">View Sales</button>
-            <button data-target="export-data" onclick="showSection('export-data')">Export Data</button>
+            <button data-target="export-data" onclick="showSection('export-data')">Export Sales Data</button>
         </nav>
         <div class="logout">
             <a href="{{ url_for('logout') }}">Logout</a>
