@@ -53,8 +53,11 @@ def create_default_admin():
         admin_pass = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'admin123')
         admin = User(username=admin_name, role='admin')
         admin.set_password(admin_pass)  # default password
-        db.session.add(admin)
-        db.session.commit()
+        try:
+            db.session.commit()
+            print("✅ Default admin created.")
+        except Exception as e:
+            print("❌ Failed to create admin:", e)
 
 # --------------------- Routes -----------------------
 
