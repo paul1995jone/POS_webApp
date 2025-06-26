@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!--    Linking CSS functionality -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+
+<!--    Defining js variable and linking javascript functionality-->
+    <script>const cartItems = {{ cart|tojson | safe }};</script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+</head>
+
+<body>
+    <header>User Dashboard</header>
+
+    <div class="dashboard">
+        <div class="sidebar">
+            <nav>
+                <button data-target="billing" onclick="showSection('billing', this)" id="btn-billing">Billing</button>
+                <button data-target="stock" onclick="showSection('stock', this)" id="btn-stock">Manage Stock</button>
+                <button data-target="statistics" onclick="window.location.href='{{ url_for('view_statistics') }}?section=statistics'" id="btn-statistics">View Statistics</button>
+                <button data-target="export" onclick="window.location.href='{{ url_for('export_sales_page') }}?section=export'" id="btn-export">Export Sales</button>
+            </nav>
+        <div class="logout">
+        <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+
+
+        <div class="main-content">
+            <!-- Billing Section -->
+            <div id="billing" class="billing-section" style="display: flex; flex-direction: column;">
+                <div class="item-search">
+                    <button onclick="filterItems('all')">All</button>
+                    <button onclick="filterItems('veg')">Veg</button>
+                    <button onclick="filterItems('non-veg')">Non-Veg</button>
+                    <input type="text" id="searchBox" onkeyup="searchItems()" placeholder="Search items...">
+                </div>
+
+                <div class="item-container">
+                    <div class="item-grid">
+                        {% for item in items %}
+                        <div class="item-box">
+                            <form method="POST" action="{{ url_for('add_to_cart', item_id=item.id) }}">
+                                <button type="submit" class="item-button {% if item.veg %}veg{% else %}non-veg{% endif %}">
+                                    {{ item.name }} - ₹{{ item.price }}
+                                </button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="cart">
+                <h3>Your Cart</h3>
+
+                {% if cart|length > 0 %}
+                <div class="cart-header" style="display: flex; font-weight: bold; border-bottom: 1px solid #aaa; padding-bottom: 5px;">
+                    <div style="flex: 2;">Name</div>
+                    <div style="flex: 2;">Quantity</div>
+                    <div style="flex: 2;">Price/Qty</div>
+                    <div style="flex: 1;"></div>
+                </div>
+                {% endif %}
+
+                <ul style="list-style: none; padding: 0;">
+                    {% set total = namespace(value=0) %}
+                    {% for entry in cart %}
+                    {% set subtotal = entry.qty * entry.price %}
+                    {% set total.value = total.value + subtotal %}
+                    <li class="cart-item" style="display: flex; padding: 5px 0; align-items: center; border-bottom: 1px solid #ddd;">
+                        <div style="flex: 2; display: flex; align-items: center;">
+                            <!-- Colored Dot -->
+                            <span style="width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; background-color: {% if entry.veg %}#28a745{% else %}#dc3545{% endif %};"></span>
+                            {{ entry.name }}
+                        </div>
+                        <div style="flex: 2;">
+                            {{ entry.qty }}
+                            <a href="{{ url_for('increment_item', item_id=entry.id) }}">[+]</a>
+                            <a href="{{ url_for('decrement_item', item_id=entry.id) }}">[-]</a>
+                        </div>
+                        <div style="flex: 2;">₹{{ entry.price }}</div>
+                        <div style="flex: 1;">
+                            <a href="{{ url_for('remove_from_cart', item_id=entry.id) }}">Remove</a>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+                <div class="subtotal">
+                    Subtotal: ₹{{ total.value }}
+                    {% if cart|length > 0 %}
+                    <form method="POST" action="{{ url_for('place_order') }}">
+                        <button type="submit" class="checkout-btn">Checkout</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div id="billPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+                 background-color:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+                <div id="billContent" style="background:white; width:300px; padding:20px; font-family:monospace; font-size:14px;">
+                    <h3 style="text-align:center;">BILL</h3>
+                    <hr>
+                    <div id="billDetails"></div>
+                    <hr>
+                    <div style="text-align:right;">Thank you!</div>
+                    <div style="text-align:center; margin-top:10px;">
+                        <button onclick="printBill()">Print</button>
+                        <button onclick="closeBillPopup()">Close</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Stock Section -->
+            <div id="stock" class="stock-section">
+                <div class="stock-lists">
+                    <!-- Available Items Section -->
+                    <div>
+                        <h4 style="margin-bottom: 10px;">Available Items</h4>
+                        <form id="stockOutForm" method="POST" action="{{ url_for('mark_stock_out') }}">
+                            <div class="stock-list">
+                                {% for item in available_items %}
+                                <div class="stock-item">
+                                    <input type="checkbox" name="item_ids" value="{{ item.id }}" class="available-item"> {{ item.name }}
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Button below the box -->
+                            <div class="stock-controls">
+                                <button type="button" onclick="submitSelected('available-item', 'stockOutForm')">Mark as Stock Out</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Stock Out Items Section -->
+                    <div>
+                        <h4 style="margin-bottom: 10px;">Stock Out Items</h4>
+                        <form id="stockInForm" method="POST" action="{{ url_for('mark_available') }}">
+                            <div class="stock-list">
+                                {% for item in stockout_items %}
+                                <div class="stock-item">
+                                    <input type="checkbox" name="item_ids" value="{{ item.id }}" class="stockout-item"> {{ item.name }}
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Button below the box -->
+                            <div class="stock-controls">
+                                <button type="button" onclick="submitSelected('stockout-item', 'stockInForm')">Mark as Available</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Reset Button -->
+                <div style="margin-top: 20px; text-align: center;">
+                    <form method="POST" action="{{ url_for('reset_stock') }}">
+                        <button type="submit">Reset All to Available</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Statistics Section -->
+            <div id="statistics" class="statistics-section" style="display: none; flex-direction: column;">
+                <h3 style="text-align: center;">Sales Statistics</h3>
+                <form method="GET" action="{{ url_for('view_statistics') }}">
+                    <label for="stat-date">Select Date:</label>
+                    <input type="date" id="stat-date" name="stat_date" value="{{ request.args.get('stat_date', '') }}">
+                    <input type="hidden" name="section" value="statistics">
+                    <button type="submit">View</button>
+                </form>
+
+                <!-- Section 1: Daily Sales Table -->
+                <div style="margin-top: 20px;">
+                    {% if statistics %}
+                    <table style="width:100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid #ccc;">
+                                <th align="left">Item</th>
+                                <th align="right">Quantity</th>
+                                <th align="right">Total Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in statistics %}
+                            <tr>
+                                <td>{{ row.name }}</td>
+                                <td align="right">{{ row.quantity }}</td>
+                                <td align="right">{{ '%.2f' % row.total_amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 15px;">
+                        <strong>Occasion:</strong> {{ occasion or 'N/A' }}<br>
+                        <strong>Weather:</strong> {{ weather or 'N/A' }}
+                    </div>
+                    {% elif request.args.get('stat_date') %}
+                    <p>No sales data available for the selected date.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Section 2: Line Graph for Last 15 Days -->
+                <div style="margin-top: 40px;">
+                    <h4 style="text-align: center;">Last 15 Days Item-wise Quantity Sold</h4>
+                    <canvas id="lineChart" height="300"></canvas>
+                </div>
+
+                <!-- Section 3: Top 5 Items in Last 30 Days -->
+                <div style="margin-top: 40px;">
+                    <h4 style="text-align: center;">Top 5 Sold Items (Last 30 Days)</h4>
+                    <ul>
+                        {% for item in top_5_items %}
+                        <li>{{ item.name }} - {{ item.total_qty }} pcs</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <!-- Export Sales Section -->
+            <div id="export" class="export-section" style="display: none; flex-direction: column;">
+                <h3 style="text-align: center;">Export Sales Data</h3>
+                <form method="get" action="{{ url_for('export_sales') }}">
+                    <label for="start-date">Start Date:</label>
+                    <input type="date" name="start_date" id="start-date" required>
+                    <label for="end-date" style="margin-left: 10px;">End Date:</label>
+                    <input type="date" name="end_date" id="end-date" required>
+                    <button type="submit" style="margin-left: 10px;">Download CSV</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% if chart_data %}
+<script>
+   document.addEventListener("DOMContentLoaded", function () {
+        renderLineChart({{ chart_data|tojson }});
+    });
+</script>
+{% endif %}
+</body>
+</html>

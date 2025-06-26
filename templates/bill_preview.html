@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Printable Bill</title>
+    <style>
+        body {
+            font-family: monospace;
+            width: 300px; /* standard thermal paper width */
+            margin: auto;
+        }
+        h3 {
+            text-align: center;
+        }
+        hr {
+            border: none;
+            border-top: 1px dashed #000;
+            margin: 10px 0;
+        }
+        .item {
+            margin-bottom: 8px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .total {
+            text-align: right;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        @media print {
+            button {
+                display: none;
+            }
+        }
+    </style>
+    <script>
+        function printAndRedirect() {
+            window.print();
+
+            // Delay redirection slightly to ensure print dialog is shown
+            setTimeout(function () {
+                window.location.href = "{{ url_for('user_dashboard') }}";
+            }, 500);
+        }
+
+        // Auto-trigger print on page load
+        window.onload = function () {
+            printAndRedirect();
+        };
+    </script>
+</head>
+<body>
+    <h3>SALES BILL</h3>
+    <hr>
+    {% for item in order %}
+    <div class="item">
+        {{ item.name }}<br>
+        Qty: {{ item.qty }} x ₹{{ '%.2f' % item.price }}<br>
+        Subtotal: ₹{{ '%.2f' % item.subtotal }}
+    </div>
+    {% endfor %}
+    <hr>
+    <div class="total">
+        Total: ₹{{ '%.2f' % total }}
+    </div>
+    <div class="footer">Thank you for your purchase!</div>
+    <div style="text-align:center; margin-top:10px;">
+        <button onclick="printAndRedirect()">Print</button>
+    </div>
+</body>
+</html>

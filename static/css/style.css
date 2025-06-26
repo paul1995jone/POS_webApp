@@ -1,0 +1,201 @@
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        header {
+            background-color: #343a40;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+        }
+        .dashboard {
+            display: flex;
+            flex: 1;
+            flex-direction: row;
+        }
+        .sidebar {
+            width: 200px;
+            background-color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            border-right: 1px solid #ccc;
+        }
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .sidebar nav button {
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .sidebar nav button.active {
+            background-color: #c0c0c0;
+            font-weight: bold;
+        }
+        .logout {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+        .billing-section, .stock-section {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .item-search {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            padding-bottom: 10px;
+            z-index: 1;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .item-container {
+            max-height: calc(3 * 100px + 20px); /* Approx. 3 rows including gaps */
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #fafafa;
+        }
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            grid-auto-rows: 80px;
+            gap: 10px;
+        }
+        .item-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .item-button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+        .veg { background-color: #d4edda; }
+        .non-veg { background-color: #f8d7da; }
+        .cart {
+            background-color: #f1f1f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+        .cart-item { margin-bottom: 10px; }
+        .subtotal {
+            font-weight: bold;
+            text-align: right;
+        }
+        .checkout-btn {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .stock-lists {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .stock-list {
+            flex: 1;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-width: 250px;
+
+            max-height: 550px; /* Enough height to show ~25 items */
+            overflow-y: auto;
+        }
+        .stock-list h4 {
+            margin-top: 0;
+        }
+        .stock-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .stock-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .stock-controls {
+            margin-top: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        @media (max-width: 768px) {
+            .dashboard {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-around;
+            }
+            .sidebar nav {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .main-content {
+                padding: 10px;
+            }
+        }
+        .item-row {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .item-row:hover {
+            background-color: #f0f0f0;
+        }
+
+        .item-row.selected {
+            background-color: #cde9ff;
+            font-weight: bold;
+        }
+
+        .deleted-item-row{
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            cursor: pointer;
+        }
+        .deleted-item-row:hover {
+            background-color: #f0f0f0;
+        }
+
+        .deleted-item-row.selected {
+            background-color: #cde9ff;
+            font-weight: bold;
+        }

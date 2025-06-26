@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+        const initialSection = "{{ section | default('manage-user') }}";
+    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+</head>
+<body>
+<header>Admin Dashboard</header>
+<div class="dashboard">
+    <div class="sidebar">
+        <nav>
+            <button data-target="manage-user" onclick="showSection('manage-user')">Manage Users</button>
+            <button data-target="manage-item" onclick="showSection('manage-item')">Manage Items</button>
+            <button data-target="view-sales" onclick="window.location.href='{{ url_for('admin_sales_summary') }}?section=view-sales'" id="btn-view-sales">View Sales</button>
+            <button data-target="export-data" onclick="showSection('export-data')">Export Data</button>
+        </nav>
+        <div class="logout">
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Manage Users Section -->
+        <div id="manage-user" class="billing-section">
+            <h3>Manage Users</h3>
+            <form method="POST" action="{{ url_for('add_user') }}">
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <select name="role">
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+                <button type="submit">Add User</button>
+            </form>
+            <ul>
+                {% for user in users %}
+                    <li>{{ user.username }} ({{ user.role }})
+                        <a href="{{ url_for('delete_user', id=user.id) }}">Delete</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Manage Items Section -->
+        <div id="manage-item" class="stock-section" style="display: none; flex-direction: column;">
+            <h3 style="text-align: center;">Manage Items</h3>
+            <h3>Active Items</h3>
+
+            <!-- Scrollable Item List -->
+            <div class="item-list-container" style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+                {% for item in available_items %}
+                <div class="item-row" onclick="selectItem(this)" data-id="{{ item.id }}"
+                     data-name="{{ item.name }}" data-price="{{ item.price }}"
+                     data-veg="{{ 'true' if item.veg else 'false' }}" data-available="{{ 'true' if item.available else 'false' }}"
+                     style="padding: 8px; border-bottom: 1px solid #ddd; cursor: pointer;">
+                    <strong>{{ item.name }}</strong> - ₹{{ item.price }} -
+                    {% if item.veg %}Veg{% else %}Non-Veg{% endif %} -
+                    {% if item.available %}Available{% else %}Not Available{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <form id="addItemForm" method="POST" action="{{ url_for('add_item') }}">
+                    <input type="text" name="name" placeholder="New Item Name" required>
+                    <input type="number" name="price" placeholder="Price" step="0.01" required>
+                    <label><input type="checkbox" name="veg"> Veg</label>
+                    <label><input type="checkbox" name="available" checked> Available</label>
+                    <button type="submit" style="background-color: green; color: white;">Add Item</button>
+                </form>
+
+                <form id="editItemForm" method="POST">
+                    <input type="hidden" name="id" id="edit-item-id">
+                    <input type="text" name="name" id="edit-item-name" placeholder="Item Name" required>
+                    <input type="number" name="price" id="edit-item-price" placeholder="Price" step="0.01" required>
+                    <label><input type="checkbox" name="veg" id="edit-item-veg"> Veg</label>
+                    <label><input type="checkbox" name="available" id="edit-item-available"> Available</label>
+                    <button type="submit">Update</button>
+                </form>
+
+                <form id="deleteItemForm" method="POST">
+                    <input type="hidden" name="id" id="delete-item-id">
+                    <button type="submit" id="delete-btn" style="background-color: red; color: white;" disabled>Delete</button>
+                </form>
+            </div>
+
+            <!-- Deleted Items Section -->
+            <div style="margin-top: 30px;">
+                <h4>Deleted Items</h4>
+                <div class="item-list-container" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+                    {% for item in deleted_items %}
+                    <div class="deleted-item-row" onclick="selectDeletedItem(this)" data-id="{{ item.id }}"
+                         data-name="{{ item.name }}" style="padding: 8px; border-bottom: 1px solid #ddd; cursor: pointer;">
+                        <strong>{{ item.name }}</strong> - ₹{{ item.price }} -
+                        {% if item.veg %}Veg{% else %}Non-Veg{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <form id="restoreItemForm" method="POST" style="margin-top: 10px;">
+                    <input type="hidden" name="id" id="restore-item-id">
+                    <button type="submit" id="restore-btn" style="background-color: blue; color: white;" disabled>Restore</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- View Sales Section -->
+        <div id="view-sales" class="view-sales-section" style="display: none; flex-direction: column;">
+            <h3 style="text-align: center;">Date-wise Total Sales</h3>
+            <canvas id="salesBarChart" height="300"></canvas>
+        </div>
+
+
+        <!-- Export Data Section -->
+        <div id="export-data" class="export-data" style="display: none; flex-direction: column;">
+                <h3 style="text-align: center;">Export Sales Data</h3>
+                <form method="get" action="{{ url_for('export_sales') }}">
+                    <label for="start-date">Start Date:</label>
+                    <input type="date" name="start_date" id="start-date" required>
+                    <label for="end-date" style="margin-left: 10px;">End Date:</label>
+                    <input type="date" name="end_date" id="end-date" required>
+                    <button type="submit" style="margin-left: 10px;">Download CSV</button>
+                </form>
+        </div>
+    </div>
+</div>
+
+{% if chart_data %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        renderSalesBarChart({{ chart_data | tojson }});
+    });
+</script>
+{% endif %}
+
+</body>
+</html>
