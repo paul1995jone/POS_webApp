@@ -49,8 +49,9 @@ class Sale(db.Model):
 
 def create_default_admin():
     if not User.query.filter_by(role='admin').first():
-        admin = os.environ.get('DEFAULT_ADMIN_USERNAME', 'admin')
+        admin_name = os.environ.get('DEFAULT_ADMIN_USERNAME', 'admin')
         admin_pass = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'admin123')
+        admin = User(username=admin_name, role='admin')
         admin.set_password(admin_pass)  # default password
         db.session.add(admin)
         db.session.commit()
@@ -82,7 +83,6 @@ def admin_dashboard():
     users = User.query.all()
     available_items = Item.query.filter_by(active=True).all()
     deleted_items = Item.query.filter_by(active=False).all()
-    print("ss")
     return render_template('admin_dashboard.html', users=users, available_items=available_items, deleted_items=deleted_items)
 
 @app.route('/user')
