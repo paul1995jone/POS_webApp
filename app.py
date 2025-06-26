@@ -623,6 +623,8 @@ def admin_sales_summary():
 #         db.create_all()
 #         create_default_admin()
 #     app.run(debug=True)
+
+# For production
 def setup():
     with app.app_context():
         db.create_all()
