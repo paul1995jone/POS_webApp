@@ -8,7 +8,8 @@ from collections import defaultdict
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'devkey')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') #for production
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///local.db')# <-- Use SQLite for local development
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -48,16 +49,31 @@ class Sale(db.Model):
 # --------------------- Create default admin account -----------------------
 
 def create_default_admin():
-    if not User.query.filter_by(role='admin').first():
-        admin_name = os.environ.get('DEFAULT_ADMIN_USERNAME', 'admin')
-        admin_pass = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'admin@123')
-        admin = User(username=admin_name, role='admin')
-        admin.set_password(admin_pass)  # default password
-        try:
-            db.session.commit()
-            print("✅ Default admin created.")
-        except Exception as e:
-            print("❌ Failed to create admin:", e)
+    # Check if any users exist
+    if not User.query.first():
+        default_admin = User(
+            username='admin',
+            password=generate_password_hash('admin123'),  # Default password
+            role='admin'
+        )
+        db.session.add(default_admin)
+        db.session.commit()
+        print("Default admin account created.")
+    else:
+        print("Users already exist. Skipping default admin creation.")
+
+    # For production environment
+# def create_default_admin():
+#     if not User.query.filter_by(role='admin').first():
+#         admin_name = os.environ.get('DEFAULT_ADMIN_USERNAME', 'admin')
+#         admin_pass = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'admin@123')
+#         admin = User(username=admin_name, role='admin')
+#         admin.set_password(admin_pass)  # default password
+#         try:
+#             db.session.commit()
+#             print("✅ Default admin created.")
+#         except Exception as e:
+#             print("❌ Failed to create admin:", e)
 
 # --------------------- Routes -----------------------
 
@@ -621,16 +637,16 @@ def admin_sales_summary():
 
 # --------------------- Main -----------------------
 
-# if __name__ == '__main__':
-#     with app.app_context():
-#         db.create_all()
-#         create_default_admin()
-#     app.run(debug=True)
-
-# For production
-def setup():
+if __name__ == '__main__':
     with app.app_context():
         db.create_all()
         create_default_admin()
+    app.run(debug=True)
 
-setup()
+# # For production
+# def setup():
+#     with app.app_context():
+#         db.create_all()
+#         create_default_admin()
+#
+# setup()
