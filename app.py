@@ -50,7 +50,7 @@ class Sale(db.Model):
 def create_default_admin():
     if not User.query.filter_by(role='admin').first():
         admin_name = os.environ.get('DEFAULT_ADMIN_USERNAME', 'admin')
-        admin_pass = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'admin123')
+        admin_pass = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'admin@123')
         admin = User(username=admin_name, role='admin')
         admin.set_password(admin_pass)  # default password
         try:
