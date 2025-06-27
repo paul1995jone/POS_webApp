@@ -56,6 +56,9 @@ def create_default_admin():
         try:
             db.session.commit()
             print("✅ Default admin created.")
+            users = User.query.all()
+            for user in users:
+                print(f"Username: {user.username}, Role: {user.role}")
         except Exception as e:
             print("❌ Failed to create admin:", e)
 
@@ -67,7 +70,9 @@ def login():
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
-        print(user,user.id,user.role)
+        users = User.query.all()
+        for user in users:
+            print(f"Username: {user.username}, Role: {user.role}")
         if user and check_password_hash(user.password, password):
             session['user_id'] = user.id
             session['role'] = user.role
