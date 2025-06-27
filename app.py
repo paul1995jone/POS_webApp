@@ -71,6 +71,7 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
         users = User.query.all()
+        print('ok')
         for user in users:
             print(f"Username: {user.username}, Role: {user.role}")
         if user and check_password_hash(user.password, password):
