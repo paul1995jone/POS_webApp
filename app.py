@@ -42,7 +42,6 @@ class Sale(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     total_amount = db.Column(db.Float, nullable=False)
     sale_date = db.Column(db.Date, default=date.today)
-
     special_occasion = db.Column(db.String(120))  # e.g., "Independence Day", "Festival"
     weather = db.Column(db.String(120))
 
