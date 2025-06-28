@@ -47,32 +47,35 @@ class Sale(db.Model):
 
 # --------------------- Create default admin account -----------------------
 
+# def create_default_admin():
+#     # Check if any users exist
+#     if not User.query.first():
+#         default_admin = User(
+#             username='admin',
+#             password=generate_password_hash('admin123'),  # Default password
+#             role='admin'
+#         )
+#         db.session.add(default_admin)
+#         db.session.commit()
+#         print("Default admin account created.")
+#     else:
+#         print("Users already exist. Skipping default admin creation.")
+
+    # For production environment
 def create_default_admin():
-    # Check if any users exist
     if not User.query.first():
+        admin_username = os.environ.get('DEFAULT_ADMIN_USERNAME', 'admin')
+        admin_password = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'admin123')
+
         default_admin = User(
-            username='admin',
-            password=generate_password_hash('admin123'),  # Default password
+            username=admin_username,
+            password=generate_password_hash(admin_password),
             role='admin'
         )
         db.session.add(default_admin)
         db.session.commit()
-        print("Default admin account created.")
-    else:
-        print("Users already exist. Skipping default admin creation.")
+        print(f"✅ Default admin created with username='{admin_username}'")
 
-    # For production environment
-# def create_default_admin():
-#     if not User.query.filter_by(role='admin').first():
-#         admin_name = os.environ.get('DEFAULT_ADMIN_USERNAME', 'admin')
-#         admin_pass = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'admin@123')
-#         admin = User(username=admin_name, role='admin')
-#         admin.set_password(admin_pass)  # default password
-#         try:
-#             db.session.commit()
-#             print("✅ Default admin created.")
-#         except Exception as e:
-#             print("❌ Failed to create admin:", e)
 
 # --------------------- Routes -----------------------
 
